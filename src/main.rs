@@ -1,13 +1,17 @@
-mod mods;
-use mods::object_data::Bloco;
-use mods::object_data::Quadrilatero;
-pub use mods::vector_data;
-pub use mods::object_data;
-use mods::vector_data:: {
-  Vetor,
-  Modulo,
-  Ponto
+pub mod vector_data;
+use vector_data::{
+  Ponto as Ponto,
+  Vetor as Vetor,
+  Modulo as Modulo
 };
+
+pub mod object_data;
+use object_data::{
+  Bloco as Bloco,
+  Quadrilatero as Quadrilatero,
+};
+
+use crate::object_data::Circulo;
 
 /// Projeto de treino
 /// a função main tem como propósito apenas o teste
@@ -20,6 +24,7 @@ fn main()
   print!(">> Modulo\n");
   print!(">> Soma\n");
   print!(">> Objetos\n");
+  print!(">> Colisoes\n");
 
   let mut input = String::new();
   stdin().read_line(&mut input)
@@ -28,6 +33,7 @@ fn main()
       "Modulo"  => {modulo()},
       "Soma"    => {soma()},
       "Objetos" => {objetos()},
+      "Colisoes"=> {colisoes()}
       x    => println!("Não existe uma função {}", x),
   }
 }
@@ -192,6 +198,91 @@ fn objetos() {
   println!("\nQuadriláteros: ");
   println!("Quad. {}\n >> {:?}\n", "Q1", Q1);
   println!("Quad. {}\n >> {:?}\n", "Q2", Q2);
-
   
+  B1.mov(v1.neg());
+  B2.mov(v1.neg());
+  B3.mov(v1.neg());
+  B4.mov(v1.neg());
+
+  Q1.mov(v1.neg());
+  Q2.mov(v1.neg());
+
+  println!("\nObjetos com merge (não somados ao vetor): ");
+  println!("Quad. {}\n >> {:?}\n", "Q1+Q2", Quadrilatero::merge(Q1, Q2));
+  println!("Bloco {}\n >> {:?}\n", "B1+B2", Bloco::merge(B1, B2));
+  
+}
+
+fn colisoes() {
+  let b1 = Bloco::new((1, 1), (3, 3));
+  let b2 = Bloco::new((2, 2), (5, 5));
+  let b3 = Bloco::new((4, 4), (6, 6));
+  // uma corrente na diagonal de blocos
+  // bloco 1 colide com bloco 2
+  // bloco 2 colide com bloco 3
+  // bloco 3 não colide com bloco 1
+
+  println!("\n COLISÕES BLOCOS: ");
+  println!(">> {} : {}", "12", b1.collide_block(b2));
+  println!(">> {} : {}", "23", b2.collide_block(b3));
+  println!(">> {} : {}", "31", b3.collide_block(b1));
+  println!("      3____ ");
+  println!("   2__|    |");
+  println!("1__|  |____|");
+  println!("|  |____|   ");
+  println!("|____|      ");
+
+
+  // mesma coisa com quadrláteros
+  let q1 = Quadrilatero::new((1, 1), 2, 2);
+  let q2 = Quadrilatero::new((2, 2), 2, 2);
+  let q3 = Quadrilatero::new((4, 4), 2, 2);
+  
+  println!("\n COLISÕES QUADRILÁTEROS: ");
+  println!(">> {} : {}", "12", q1.collide_quad(q2));
+  println!(">> {} : {}", "23", q2.collide_quad(q3));
+  println!(">> {} : {}", "31", q3.collide_quad(q1));
+  println!("      3____ ");
+  println!("   2__|    |");
+  println!("1__|  |____|");
+  println!("|  |____|   ");
+  println!("|____|      ");
+
+  println!("\n COLISÕES ENTRE QUADRILÁTEROS NÃO EQUILÁTEROS: ");
+  let q1 = Quadrilatero:: new((1, 1), 2, 1);
+  let q2 = Quadrilatero:: new((2, 2), 2, 1);
+  let q3 = Quadrilatero:: new((3, 1), 3, 1);
+  println!(">> {} : {}", "12", q1.collide_quad(q2));
+  println!(">> {} : {}", "23", q2.collide_quad(q3));
+  println!(">> {} : {}", "31", q3.collide_quad(q1));
+  println!("                     ");
+  println!("     ________        ");
+  println!("  ___|______|___     ");
+  println!(" |______|______|     ");
+  let q1 = Quadrilatero:: new((1, 1), 2, 1);
+  let q2 = Quadrilatero:: new((2, 3), 2, 1);
+  let q3 = Quadrilatero:: new((3, 1), 3, 1);
+  println!("\n>> {} : {}", "12", q1.collide_quad(q2));
+  println!(">> {} : {}", "23", q2.collide_quad(q3));
+  println!(">> {} : {}", "31", q3.collide_quad(q1));
+  println!("     ________        ");
+  println!("     |______|        ");
+  println!("  ______________     ");
+  println!(" |______|______|     ");
+
+  println!("\n COLISÕES ENTRE QUADRILÁTEROS E BLOCOS");
+  println!(">> {} : {}", "12", b1.collide_quad(q2));
+  println!(">> {} : {}", "23", b2.collide_quad(q3));
+  println!(">> {} : {}", "31", b3.collide_quad(q1));
+  println!("     Mucha informacíon               ");
+
+
+  let c1 = Circulo::new((1, 1), 2.0);
+  let c2 = Circulo::from(Ponto::new(3, 3), 1.0);
+  let c3 = Circulo::new((3, 5), 1.0);
+  println!("\n COLISÕES CÍRCULOS:");
+  println!(">> {} : {}", "12", c1.collide_circle(c2));
+  println!(">> {} : {}", "23", c2.collide_circle(c3));
+  println!(">> {} : {}", "31", c3.collide_circle(c1));
+
 }
